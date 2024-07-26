@@ -19,9 +19,25 @@ cloudinary.config({
   api_secret:process.env.CLOUDINARY_API_SECRET
 });
 
-const server=app.listen(PORT, ()=>{
-  console.log(`Server is hosted on port number ${PORT}`)
-})
+const { createProxyMiddleware } = require('http-proxy-middleware');
+app.use('/api', createProxyMiddleware({
+    target: 'http://192.168.101.11:5000',
+    changeOrigin: true,
+    timeout: 5000, // Increase timeout if needed
+    proxyTimeout: 5000,
+    onError: (err, req, res) => {
+        console.error('Proxy error:', err);
+        res.status(500).send('Proxy error');
+    }
+}));
+
+app.listen(3000, () => {
+    console.log('Server running on http://192.168.101.11:3000');
+});
+
+// const server=app.listen(PORT, ()=>{
+//   console.log(`Server is hosted on port number ${PORT}`)
+// })
 
 // Unhandled Promise Rejection
 process.on("unhandledRejection", (err) => {
